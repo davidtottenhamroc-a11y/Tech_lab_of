@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universidade do Suporte - VSoft</title>
+    <title>Galeria de Slides</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -18,89 +18,78 @@
             min-height: 100vh;
             padding: 20px;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1200px;
+            width: 100%;
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            padding: 20px;
+            padding: 30px;
+            text-align: center;
         }
 
         header {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-            margin: -20px -20px 20px -20px;
+            margin-bottom: 30px;
         }
 
-        h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
+        header h1 {
+            font-size: 32px;
+            color: #2c3e50;
         }
 
-        .description {
-            font-size: 16px;
-            opacity: 0.9;
+        header p {
+            font-size: 18px;
+            color: #666;
         }
         
         main {
             padding: 20px;
         }
 
-        .presentation-grid {
+        .slide-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
             justify-content: center;
         }
 
-        .presentation-card {
+        .slide-card {
             background: #f7f9fc;
             border: 1px solid #e1e6ec;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
         }
 
-        .presentation-card h2 {
+        .slide-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .slide-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .slide-card h2 {
             font-size: 20px;
             color: #0056b3;
             margin-bottom: 15px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 10px;
         }
 
-        .presentation-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-        }
-
-        .presentation-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .back-button-container {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .back-button {
-            display: inline-block;
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 12px 25px;
             font-size: 16px;
             background: linear-gradient(135deg, #007bff, #0056b3);
@@ -113,31 +102,70 @@
             transition: all 0.3s ease;
         }
 
-        .back-button:hover {
+        .download-button i {
+            margin-right: 8px;
+        }
+
+        .download-button:hover {
             background: linear-gradient(135deg, #0069d9, #004da3);
         }
 
+        .back-button-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: linear-gradient(135deg, #5a6268, #343a40);
+        }
+
         @media (max-width: 768px) {
-            .presentation-grid {
+            .slide-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+
     <div class="container">
         <header>
-            <h1>Slide</h1>
-            <p class="description">Slide dos Tech + Lab.</p>
+            <h1>Galeria de Slides</h1>
+            <p>Selecione um slide para fazer o download.</p>
         </header>
 
         <main>
-            <div class="presentation-grid">
-                <div class="presentation-card">
-                    <h2>Atendimento Direcioando</h2>
-                    <div class="presentation-container">
-                        <iframe src="Slides/ATENDIMENTO_DIRECIONADO.pptx" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
-                    </div>
+            <div class="slide-grid">
+                <div class="slide-card">
+                    <img src="Slides/Atendimento.png" alt="Capa da apresentação Atendimento Direcionado" class="slide-image">
+                    <h2>Atendimento Direcionado</h2>
+                    <a href="Slides/ATENDIMENTO_DIRECIONADO.pptx" class="download-button" download="Atendimento_Direcionado.pptx">
+                        <i class="fas fa-download"></i> Baixar Slide
+                    </a>
+                </div>
+
+                <div class="slide-card">
+                    <img src="Slides/Abertura.png" alt="Capa da apresentação Análise de Desligamento no RN" class="slide-image">
+                    <h2>Análise de Desligamento no RN</h2>
+                    <a href="Slides/Abertura.pptx" class="download-button" download="Abertura.pptx">
+                        <i class="fas fa-download"></i> Baixar Slide
+                    </a>
+                </div>
+
                 </div>
         </main>
         
@@ -145,6 +173,6 @@
             <a href="menu.html" class="back-button">Voltar para o Menu</a>
         </div>
     </div>
-</body>
 
+</body>
 </html>
