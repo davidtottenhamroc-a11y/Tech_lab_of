@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atendimento Direcionado: Guia Interativo Vsoft</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            overflow-x: hidden; /* Evita scroll horizontal indesejado */
+        }
+        .main-header {
+            text-align: center;
+            padding: 30px 0;
+            background-color: #0056b3;
+            color: white;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .main-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .main-header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Container dos cards */
+        .card-grid {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Estilo base do card (tanto macro quanto sub-card) */
+        .card-item {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            border-left: 6px solid #28a745; /* Cor padrão */
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            min-height: 100px; /* Altura mínima */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+        .card-item h3 {
+            color: #0056b3;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .card-item p {
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        /* Cores e estilos para cards MACRO */
+        .card-item.macro-card {
+            border-left-color: #0056b3; /* Cor principal para macros */
+            background-color: #e0f2f7; /* Fundo mais claro para macros */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+        .card-item.macro-card:hover {
+             border-left-color: #003f80;
+             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Cores dos sub-cards (mesmas do exemplo anterior para consistência) */
+        .card-item[data-card-id="introducao"] { border-left-color: #007bff; }
+        .card-item[data-card-id="identificacao"] { border-left-color: #6f42c1; }
+        .card-item[data-card-id="compreensao"] { border-left-color: #ffc107; }
+        .card-item[data-card-id="guiado_analitico_relacao"] { border-left-color: #28a745; } /* Nova cor para o novo card */
+        .card-item[data-card-id="cenarios_bahia"] { border-left-color: #fd7e14; }
+        .card-item[data-card-id="cenarios_liberacao"] { border-left-color: #dc3545; }
+        .card-item[data-card-id="cenarios_frequencia"] { border-left-color: #20c997; }
+        .card-item[data-card-id="cenarios_transferencia"] { border-left-color: #17a2b8; }
+        .card-item[data-card-id="cenarios_cancelamento"] { border-left-color: #e83e8c; }
+        .card-item[data-card-id="cenarios_erro060"] { border-left-color: #6610f2; }
+        .card-item[data-card-id="cenarios_face"] { border-left-color: #009688; }
+        .card-item[data-card-id="cenarios_sem_processo"] { border-left-color: #c70039; }
+        .card-item[data-card-id="cenarios_telemetria"] { border-left-color: #f7b731; }
+        .card-item[data-card-id="principios_suporte"] { border-left-color: #4CAF50; }
+        .card-item[data-card-id="principios_importancia"] { border-left-color: #8bc34a; }
+        .card-item[data-card-id="principios_dicas"] { border-left-color: #cddc39; }
+        .card-item[data-card-id="principios_perfil"] { border-left-color: #ff9800; }
+        .card-item[data-card-id="estruturacao_metricas"] { border-left-color: #ff5722; }
+        .card-item[data-card-id="estruturacao_sistema"] { border-left-color: #795548; }
+        .card-item[data-card-id="estruturacao_melhoria"] { border-left-color: #9c27b0; }
+        .card-item[data-card-id="conclusao_final"] { border-left-color: #607d8b; } /* Usando _final para evitar conflito */
+
+
+        /* Estilo da tela de detalhes (expansão) */
+        .card-detail-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* Escondido por padrão */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            overflow-y: auto; /* Permite scroll no conteúdo expandido */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .card-detail-content {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 900px; /* Largura máxima para o conteúdo expandido */
+            width: 100%;
+            position: relative;
+            max-height: 90vh; /* Altura máxima da janela de detalhes */
+            overflow-y: auto; /* Scroll interno para o conteúdo */
+            transform: scale(0.9);
+            opacity: 0;
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .card-detail-overlay.active {
+            display: flex; /* Exibir quando ativo */
+        }
+        .card-detail-overlay.active .card-detail-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .card-detail-content h2 {
+            color: #0056b3;
+            margin-top: 0;
+            font-size: 2em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        .card-detail-content h3 {
+            color: #343a40;
+            font-size: 1.4em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .card-detail-content ul, .card-detail-content ol {
+            margin-left: 25px;
+            padding-left: 0;
+        }
+        .card-detail-content li {
+            margin-bottom: 10px;
+        }
+        .card-detail-content strong {
+            color: #0056b3;
+        }
+        .card-detail-content .note, .card-detail-content .alert, .card-detail-content .error-msg, .card-detail-content .info-box {
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+        .card-detail-content .note { background-color: #e6f7ff; border-left: 4px solid #007bff; color: #0056b3;}
+        .card-detail-content .alert { background-color: #fff3cd; border-left: 4px solid #ffc107; color: #664d03;}
+        .card-detail-content .error-msg { background-color: #f8d7da; border-left: 4px solid #dc3545; color: #721c24;}
+        .card-detail-content .info-box { background-color: #d4edda; border-left: 4px solid #28a745; color: #155724; } /* Novo estilo para informações */
+
+
+        /* Botão de fechar */
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2.5em;
+            color: #aaa;
+            cursor: pointer;
+            border: none;
+            background: none;
+            line-height: 1;
+            padding: 0;
+        }
+        .close-button:hover {
+            color: #555;
+        }
+
+        /* Estilo para esconder os sub-cards inicialmente */
+        .sub-cards-container {
+            display: none; /* Esconde os sub-cards por padrão */
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        .sub-cards-container.active {
+            display: grid; /* Exibe como grid quando ativo */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            display: none; /* Escondido por padrão */
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-header">
+        <h1>Atendimento Direcionado: Construindo um Atendimento Analítico</h1>
+        <p>Guia Interativo para Suporte Vsoft - CFCs e Instrutores</p>
+    </div>
+
+    <button class="back-button" id="backButton">Voltar aos Tópicos Principais</button>
+
+    <div class="card-grid" id="mainCardGrid">
+
+        <div class="card-item macro-card" data-macro-id="atendimento_guiado">
+            <h3>1. Atendimento Guiado</h3>
+            <p>Introdução, identificação do cliente, compreensão da solicitação e a relação com o atendimento analítico.</p>
+        </div>
+
+        <div class="card-item macro-card" data-macro-id="cenarios_comuns">
+            <h3>2. Cenários Comuns de Atendimento e Resolução</h3>
+            <p>Guia para lidar com problemas frequentes como crédito, liberação de aula, erros e telemetria.</p>
+        </div>
+
+        <div class="card-item macro-card" data-macro-id="fundamentos_melhoria">
+            <h3>3. Fundamentos e Melhoria Contínua do Suporte</h3>
+            <p>Princípios de suporte técnico, métricas de gerenciamento e lições para otimização do desempenho.</p>
+        </div>
+
+        <div class="card-item macro-card" data-macro-id="conclusao_final">
+            <h3>4. Conclusão</h3>
+            <p>Síntese da importância de metodologias e práticas para a excelência no atendimento.</p>
+        </div>
+
+    </div>
+
+    <div class="card-grid sub-cards-container" id="subCardGrid"></div>
+
+    <div class="card-detail-overlay" id="cardDetailOverlay">
+        <div class="card-detail-content" id="cardDetailContent">
+            <button class="close-button" id="closeButton">&times;</button>
+            <div id="cardFullContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Conteúdo completo de cada SUB-CARD
+        const fullContents = {
+            "introducao": `
+                <h2>1. Introdução e Objetivo</h2>
+                <p>Este documento visa detalhar os procedimentos, protocolos e melhores práticas para o atendimento ao cliente no suporte Vsoft, especificamente para CFCs e Instrutores. O objetivo é capacitar os agentes de suporte a oferecerem um atendimento mais analítico, solucionando problemas de forma ágil e eficaz, e garantindo a satisfação do cliente.</p>
+                <div class="note">Em um cenário onde a tecnologia é cada vez mais presente nas empresas, um suporte técnico bem estruturado é imprescindível.</div>
+            `,
+            "identificacao": `
+                <h2>2. Identificação do Cliente</h2>
+                <p>Antes de iniciar qualquer atendimento, é crucial identificar corretamente o cliente:</p>
+                <ul>
+                    <li><strong>CFC:</strong> Solicitar o CNPJ ou o usuário utilizado no painel web SuperPrático.</li>
+                    <li><strong>Instrutor:</strong> Solicitar o nome e o CPF.</li>
+                </ul>
+            `,
+            "compreensao": `
+                <h2>3. Compreensão da Solicitação (Palavras-chaves e Significados)</h2>
+                <p>No primeiro contato, o agente deve compreender a solicitação do cliente para realizar o atendimento da melhor forma. É fundamental entender a dor que o usuário de TI está apresentando.</p>
+            `,
+            "guiado_analitico_relacao": `
+                <h2>Atendimento Guiado vs. Atendimento Analítico: Uma Relação Cíclica</h2>
+                <h3>Atendimento Guiado:</h3>
+                <p>Significa que o cliente será atendido de forma organizada, com perguntas direcionadas e respostas assertivas, evitando ruídos de comunicação, repetições desnecessárias e informações divergentes.</p>
+                <div class="info-box"><strong>Respostas:</strong> Exatas e Consistentes.</div>
+
+                <h3>Atendimento Analítico:</h3>
+                <p>É o processo de suporte que se baseia na observação, coleta, correlação e interpretação de informações técnicas, visando compreender não apenas o sintoma apresentado pelo cliente, mas também os fatores que originaram a falha, garantindo uma resolução precisa e sustentável.</p>
+                <div class="info-box"><strong>Resolução:</strong> Assertiva.</div>
+
+                <h3>Guiado Ajuda o Analítico:</h3>
+                <ul>
+                    <li>Padronizar a coleta de dados (evita falhas na informação inicial).</li>
+                    <li>Garante que o analista já receba um “pacote” de informações organizadas.</li>
+                    <li>Filtra casos simples, liberando o time analítico para problemas complexos.</li>
+                </ul>
+
+                <h3>Analítico Ajuda o Guiado:</h3>
+                <ul>
+                    <li>Gera conhecimento técnico a partir das análises realizadas.</li>
+                    <li>Alimenta a base de dados e scripts do atendimento guiado com novas soluções.</li>
+                    <li>Permite que problemas complexos de hoje virem soluções guiadas para amanhã.</li>
+                </ul>
+
+                <h3>Relação Cíclica:</h3>
+                <ol>
+                    <li><strong>Começa guiado:</strong> Rápido, padronizado e objetivo.</li>
+                    <li><strong>Escala para analítico:</strong> Quando exige profundidade e investigação.</li>
+                    <li><strong>Volta para guiado:</strong> Os aprendizados do analítico são incorporados ao roteiro, aumentando a eficiência nos próximos atendimentos.</li>
+                </ol>
+            `,
+            "cenarios_bahia": `
+                <h2>4.1. Aluno sem crédito (Bahia)</h2>
+                <p>É possível inserir bônus, respeitando o limite de até 15 bônus por categoria.</p>
+                <p>Caso o problema persista, o agente deve consultar o registro de consumo de bônus desse aluno.</p>
+            `,
+            "cenarios_liberacao": `
+                <h2>4.2. Liberação de Aula</h2>
+                <h3>Aula realizada no mesmo dia:</h3>
+                <ul>
+                    <li>Verificar se há créditos suficientes para envio.</li>
+                    <li>Verificar se a aula está em alerta.</li>
+                    <li>Se não houver alerta, orientar o CFC a aguardar o prazo de envio de até 24 horas.</li>
+                </ul>
+                <h3>Aula NÃO realizada no mesmo dia:</h3>
+                <ul>
+                    <li>Verificar se a aula foi recusada e analisar a possibilidade de uma nova reanálise.</li>
+                    <li><strong>Status Vermelho:</strong> Consultar o retorno do Detran e avaliar a possibilidade de reenvio ou reprocessamento.</li>
+                    <li><strong>Status Amarelo:</strong> Verificar a resposta do Detran e analisar a possibilidade de reprocessamento.</li>
+                </ul>
+                <div class="alert"><strong>Observação:</strong> Aulas em alertas (círculos amarelos e vermelhos) estão em período de análise pelo setor de Antifraude devido a irregularidades.</div>
+            `,
+            "cenarios_frequencia": `
+                <h2>4.3. Verificação de Frequência (Exemplos na Paraíba)</h2>
+                <p>É importante perguntar ao CFC qual tipo de frequência ele deseja consultar.</p>
+                <ul>
+                    <li><strong>Teórico:</strong> É possível verificar tanto pelo painel web SuperPrático quanto no sistema do Detran se o certificado e a frequência estão corretos.</li>
+                    <li><strong>Prático:</strong> É necessário verificar se as aulas estão enviadas, validadas e com status "realizada" dentro do painel SuperPrático. Caso o certificado não tenha sido emitido, verificar as aulas conflitantes e orientar o CFC.</li>
+                </ul>
+            `,
+            "cenarios_transferencia": `
+                <h2>4.4. Transferência de Créditos (Exemplo na Paraíba)</h2>
+                <p>Confirmar se as unidades envolvidas são filiais.</p>
+                <p>No estado da Paraíba, é possível realizar a transferência de créditos entre um processo inativo para um processo ativo.</p>
+                <p>Para os demais estados, é necessário consultar a planilha de regra disponível pela área de suporte.</p>
+                <div class="note">Para mais informações, revisar os artigos: "[PB] Transferência de créditos entre processos inativos para ativos" ou "Como posso transferir créditos?".</div>
+            `,
+            "cenarios_cancelamento": `
+                <h2>4.5. Cancelamento de Matrícula (Exemplo na Paraíba)</h2>
+                <p>Entender do CFC o motivo da solicitação de cancelamento. O suporte Vsoft pode atuar apenas no estado da Paraíba, pois o cancelamento é feito pelo sistema do Admin. Para outros estados, é realizado no sistema interno deles.</p>
+                <ol>
+                    <li><strong>1º Passo: Confirmar se o candidato pertence ao CFC solicitante.</strong>
+                        <ul>
+                            <li><strong>Candidato pertence ao CFC solicitante:</strong> Verificar se o usuário está sem acesso ao sistema do Admin. Orientar que todo cancelamento deve ser feito por esse acesso, pois, se a matrícula for cancelada apenas pelo iDSCNH, ela ficará pendente no Admin, exigindo repetição da ação.</li>
+                            <li><strong>Exceção Importante:</strong> O cancelamento é permitido quando o CFC teve perda do banco de dados.</li>
+                            <li><strong>Candidato não pertence ao CFC solicitante:</strong> Não é permitido o cancelamento por outra unidade.</li>
+                        </ul>
+                    </li>
+                </ol>
+                <div class="note"><strong>Importante:</strong> É permitido o cancelamento apenas se o candidato estiver cadastrado no CFC desabilitado, mas com status de desativado ou suspenso. Para verificar, acesse "Centro de Formação", filtre por CNPJ ou nome do CFC e confira o status.</div>
+                <h3>Procedimento:</h3>
+                <ol>
+                    <li>Confirme se o aluno já está vinculado ao CFC que entrou em contato.</li>
+                    <li>Acesse o iDSCNH no Menu Processos, filtre pelo CPF do candidato, selecione a flag "Processo Ativo" e clique em "Cancelar" para finalizar.</li>
+                </ol>
+            `,
+            "cenarios_erro060": `
+                <h2>4.6. Erro 060 (Abertura de Aula)</h2>
+                <p>Este erro ocorre na tela do aparelho coletor ao abrir uma aula.</p>
+                <ul>
+                    <li>Verificar se o aluno possui créditos de aulas disponíveis no sistema SuperPrático (aba Processo).</li>
+                    <li>Verificar a data do Renach pelo sistema Retool. Se estiver vencida, alterar manualmente pela opção "Setar Data Validade".</li>
+                    <li>Solicitar ao CFC que sincronize o aparelho coletor e tente abrir a aula novamente.</li>
+                </ul>
+            `,
+            "cenarios_face": `
+                <h2>4.7. Candidato com erro "Face não cadastrada"</h2>
+                <p>No sistema SuperPrático, é possível identificar o status do perfil/processo do candidato.</p>
+                <ul>
+                    <li>Confirmar se o candidato possui foto cadastrada no Módulo Geral, na aba Candidato.</li>
+                    <li><strong>Se possuir foto:</strong> Salvar a foto no computador e, na aba do candidato, na opção "Adicionar informações Biométricas", reimportar a imagem. Em seguida, solicitar ao instrutor que tente abrir a aula.</li>
+                    <li><strong>Se NÃO possuir foto:</strong> Verificar com o agente N2 se é possível aplicar a importação manual da imagem no estado.</li>
+                </ul>
+                <div class="note">Para capturar a imagem, usar a ferramenta Capture (como na Bahia e Sergipe). Para estados que usam apenas fotos do Detran, seguir as especificações de cada área.</div>
+            `,
+            "cenarios_sem_processo": `
+                <h2>4.8. Candidato sem processo ativo (aula teórica)</h2>
+                <p>No sistema SuperPrático, é possível identificar o status do perfil/processo do candidato.</p>
+                <ul>
+                    <li>Verificar se o aluno possui crédito de aulas disponíveis no sistema SuperPrático, na aba de Processo.</li>
+                    <li>Verificar a Data Renach pelo sistema Retool. Se estiver vencida, alterar manualmente pela opção "setar Data Validade".</li>
+                    <li>Solicitar ao CFC que sincronize o aparelho coletor e tente abrir a aula novamente.</li>
+                </ul>
+            `,
+            "cenarios_telemetria": `
+                <h2>4.9. Solicitando Telemetria</h2>
+                <p>Quando o CFC solicita telemetria, pode se tratar da taxa de monitoramento.</p>
+                <ul>
+                    <li>Confirmar se a solicitação é referente ao cancelamento ou a uma nova taxa de monitoramento.</li>
+                    <li>Verificar se o boleto está pago ou vencido.</li>
+                    <li>Se houver um boleto existente no perfil do candidato e a solicitação for de cancelamento, é possível cancelar pelo sistema Retool. Para cancelar: acesse a aba de Processo (Prático ou Teórico) > Pagamento > Setar pagamento como Não Pago. Em seguida, oriente o CFC a reimportar ou gerar um novo boleto avulso.</li>
+                </ul>
+            `,
+            "principios_suporte": `
+                <h2>5.1. O que é Suporte Técnico</h2>
+                <p>O suporte técnico é o serviço prestado por um analista de TI para solucionar problemas apresentados por usuários de tecnologia que não possuem o conhecimento técnico necessário. Este é um atendimento ao cliente que busca solucionar uma necessidade.</p>
+            `,
+            "principios_importancia": `
+                <h2>5.2. A Importância do Atendimento</h2>
+                <p>Um bom atendimento é extremamente importante para o sucesso de qualquer organização e para a retenção de clientes, que são a maior fonte de receita.</p>
+                <div class="note">Clientes satisfeitos tendem a indicar os serviços para outras pessoas, atraindo ainda mais clientes.</div>
+            `,
+            "principios_dicas": `
+                <h2>5.3. Dicas para um Suporte Técnico Excelente</h2>
+                <ol>
+                    <li><strong>Conhecer bem o cliente:</strong> Entender as particularidades do CFC e do Instrutor.</li>
+                    <li><strong>Entender as necessidades:</strong> Saber exatamente qual problema o usuário está enfrentando.</li>
+                    <li><strong>Linguagem clara e eficaz:</strong> Utilizar uma comunicação que seja facilmente compreendida pelo cliente.</li>
+                    <li><strong>Comunicação multicanal:</strong> Aproveitar as tecnologias disponíveis para se comunicar (se aplicável ao Vsoft).</li>
+                    <li><strong>Suporte ágil:</strong> Procurar sempre prestar um atendimento rápido e eficiente.</li>
+                    <li><strong>Conhecimento pleno do sistema:</strong> Dominar o sistema utilizado para prestar o suporte ideal.</li>
+                </ol>
+            `,
+            "principios_perfil": `
+                <h2>5.4. Perfil do Profissional de Suporte</h2>
+                <p>É essencial contratar profissionais que se adequem à cultura e expectativas de trabalho, possuindo o perfil necessário para a equipe de suporte técnico, além da qualificação técnica.</p>
+            `,
+            "estruturacao_metricas": `
+                <h2>6.1. Métricas de Gerenciamento</h2>
+                <p>As métricas são indicadores que mostram os resultados da equipe de suporte (positivos ou negativos), permitindo identificar aspectos que precisam melhorar e direcionar esforços.</p>
+                <ul>
+                    <li><strong>Número de chamados abertos X Número de chamados fechados:</strong> Registrar esses números é o primeiro passo para analisar a equipe corretamente e identificar se há uma proporção negativa que precisa ser revertida.</li>
+                    <li><strong>Frequência dos chamados:</strong> Registrar a frequência ajuda a identificar se um mesmo usuário está abrindo muitos chamados, o que pode indicar falhas na operação.</li>
+                    <li><strong>Reabertura de chamados:</strong> Se um chamado é reaberto várias vezes, indica um problema de comunicação ou falta de capacitação da equipe.</li>
+                    <li><strong>Nível de satisfação dos clientes com o suporte (SAC):</strong> Medir a satisfação do cliente é um indicador palpável dos resultados. Pesquisas de satisfação ajudam a identificar pontos de melhoria.</li>
+                </ul>
+            `,
+            "estruturacao_sistema": `
+                <h2>6.2. Importância de um Sistema de Chamados</h2>
+                <p>Ter um sistema de chamados para controle efetivo é o mais importante para uma equipe de suporte de qualidade. Ele proporciona:</p>
+                <ul>
+                    <li>Maior organização.</li>
+                    <li>Segurança e armazenamento dos dados.</li>
+                    <li>Histórico do contato com cada cliente.</li>
+                    <li>Maior produtividade da equipe.</li>
+                    <li>Centralização da operação em uma única plataforma.</li>
+                </ul>
+            `,
+            "estruturacao_melhoria": `
+                <h2>6.3. Melhoria do Desempenho (Lições da FINTEX)</h2>
+                <p>O estudo de caso da FINTEX (empresa de tecnologia financeira) demonstrou que a otimização do tempo e a facilidade na resolução de problemas são premissas fundamentais no setor de tecnologia. A aplicação do Ciclo Plan-Do-Check-Act (PDCA), em conjunto com o framework Scrum, pode trazer melhorias significativas.</p>
+                <h3>Comunicação e Feedback:</h3>
+                <ul>
+                    <li>A garantia do feedback dos clientes deve chegar aos responsáveis com qualidade e clareza.</li>
+                    <li>A interação entre os times (Suporte, Desenvolvimento e Produto) é crucial, especialmente para o reporte de falhas e bugs.</li>
+                    <li>A criação de procedimentos de fácil compreensão facilita essa interação.</li>
+                </ul>
+                <h3>Mapeamento de Falhas:</h3>
+                <ul>
+                    <li>É importante mapear as falhas na comunicação e resposta ao cliente para propor melhorias.</li>
+                </ul>
+                <h3>Plano de Ação (Exemplo com 5W2H):</h3>
+                <ul>
+                    <li>Contratação de mais atendentes para lidar com a demanda de tickets.</li>
+                    <li>Criação de ferramentas internas para o time de suporte atender casos simples, reduzindo o escalonamento para equipes de desenvolvimento.</li>
+                    <li>Classificação dos chamados por nível de prioridade (e.g., azul para não urgente > 48h, amarelo para atenção > 24h, vermelho para urgente < 24h) para agilizar o atendimento dos casos mais críticos.</li>
+                    <li>Treinamento contínuo para padronizar processos, reduzir ruídos na comunicação e falhas.</li>
+                </ul>
+                <h3>Novo Fluxo de Atendimento:</h3>
+                <ul>
+                    <li>Implementar um fluxo que solicite informações pré-definidas do cliente no primeiro nível, agilizando o escalonamento para equipes de desenvolvimento.</li>
+                </ul>
+                <h3>Verificação e Acompanhamento:</h3>
+                <ul>
+                    <li>Após a implementação, os indicadores devem ser constantemente verificados (TPR, TTR, SAC, RUT, LEC) para mensurar o impacto das melhorias.</li>
+                    <li>A <strong>Redução do Tempo de Primeira Resposta (TPR)</strong> e <strong>Tempo Total de Resolução (TTR)</strong> são indicadores-chave de sucesso.</li>
+                    <li>A <strong>Satisfação do Cliente (SAC)</strong> e a <strong>Lealdade do Cliente (LEC)</strong> devem ser monitoradas para garantir que as mudanças estejam agregando valor à experiência do cliente.</li>
+                </ul>
+            `,
+            "conclusao_final": `
+                <h2>7. Conclusão</h2>
+                <p>A adoção de metodologias como o PDCA, alinhada com as boas práticas de suporte técnico e um sistema de chamados eficiente, é fundamental para melhorar a agilidade, assertividade e qualidade na correção de falhas e na interação entre as equipes de suporte e desenvolvimento. A confiança e a satisfação do cliente são diretamente impactadas pela agilidade na resolução dos problemas. Recomenda-se a aplicação contínua de ciclos de melhoria para manter a excelência no atendimento.</p>
+            `
+        };
+
+        // Definição dos sub-cards para cada macro-card
+        const subCardData = {
+            "atendimento_guiado": [
+                { id: "introducao", title: "1. Introdução e Objetivo", summary: "Detalha procedimentos e melhores práticas para um atendimento analítico e eficaz no suporte Vsoft." },
+                { id: "identificacao", title: "2. Identificação do Cliente", summary: "Aprenda a identificar corretamente CFCs (CNPJ) e Instrutores (nome e CPF) antes do atendimento." },
+                { id: "compreensao", title: "3. Compreensão da Solicitação", summary: "A importância de entender a 'dor' do usuário de TI para um atendimento direcionado e eficiente." },
+                { id: "guiado_analitico_relacao", title: "Atendimento Guiado vs. Analítico", summary: "Entenda as definições e a relação cíclica entre atendimento guiado e analítico." } // Novo sub-card
+            ],
+            "cenarios_comuns": [
+                { id: "cenarios_bahia", title: "4.1. Aluno sem crédito (Bahia)", summary: "Procedimentos para inserir bônus e verificar consumo de créditos no estado da Bahia." },
+                { id: "cenarios_liberacao", title: "4.2. Liberação de Aula", summary: "Orientações para aulas realizadas no mesmo dia ou não, e como lidar com alertas e status." },
+                { id: "cenarios_frequencia", title: "4.3. Verificação de Frequência (Paraíba)", summary: "Como consultar frequências teóricas e práticas, e verificar certificados no SuperPrático e Detran." },
+                { id: "cenarios_transferencia", title: "4.4. Transferência de Créditos (Paraíba)", summary: "Regras e procedimentos para transferir créditos entre processos inativos e ativos." },
+                { id: "cenarios_cancelamento", title: "4.5. Cancelamento de Matrícula (Paraíba)", summary: "Orientações sobre o processo de cancelamento de matrícula e exceções." },
+                { id: "cenarios_erro060", title: "4.6. Erro 060 (Abertura de Aula)", summary: "Passos para resolver o Erro 060, verificando créditos, Renach e sincronização do coletor." },
+                { id: "cenarios_face", title: "4.7. Candidato com erro 'Face não cadastrada'", summary: "Como verificar e reimportar fotos biométricas para resolver problemas de reconhecimento facial." },
+                { id: "cenarios_sem_processo", title: "4.8. Candidato sem processo ativo (aula teórica)", summary: "Verificação de créditos e data do Renach para candidatos com processo inativo em aulas teóricas." },
+                { id: "cenarios_telemetria", title: "4.9. Solicitando Telemetria", summary: "Como gerenciar solicitações de telemetria, cancelamento ou geração de boletos de taxa." }
+            ],
+            "fundamentos_melhoria": [
+                { id: "principios_suporte", title: "5.1. O que é Suporte Técnico", summary: "Definição do suporte técnico como serviço de solução de problemas para usuários de tecnologia." },
+                { id: "principios_importancia", title: "5.2. A Importância do Atendimento", summary: "O papel crucial de um bom atendimento para o sucesso da organização e a retenção de clientes." },
+                { id: "principios_dicas", title: "5.3. Dicas para um Suporte Técnico Excelente", summary: "Diretrizes para um suporte de excelência: conhecer o cliente, agilidade, comunicação e domínio do sistema." },
+                { id: "principios_perfil", title: "5.4. Perfil do Profissional de Suporte", summary: "Características essenciais para profissionais de suporte técnico, além da qualificação técnica." },
+                { id: "estruturacao_metricas", title: "6.1. Métricas de Gerenciamento", summary: "Indicadores-chave (chamados abertos/fechados, frequência, reabertura, SAC) para monitorar o desempenho." },
+                { id: "estruturacao_sistema", title: "6.2. Importância de um Sistema de Chamados", summary: "Benefícios de um sistema de chamados para organização, segurança, histórico e produtividade." },
+                { id: "estruturacao_melhoria", title: "6.3. Melhoria do Desempenho (Lições da FINTEX)", summary: "Aplicação de metodologias (PDCA, Scrum) para otimizar o tempo e a resolução de problemas." }
+            ],
+            "conclusao_final": [
+                { id: "conclusao_final", title: "7. Conclusão", summary: "Síntese da importância de metodologias e práticas para a excelência no atendimento." }
+            ]
+        };
+
+        const mainCardGrid = document.getElementById('mainCardGrid');
+        const subCardGrid = document.getElementById('subCardGrid');
+        const cardDetailOverlay = document.getElementById('cardDetailOverlay');
+        const cardFullContent = document.getElementById('cardFullContent');
+        const closeButton = document.getElementById('closeButton');
+        const backButton = document.getElementById('backButton');
+
+        // Função para criar e exibir os sub-cards
+        function showSubCards(macroId) {
+            mainCardGrid.style.display = 'none'; // Esconde os cards macro
+            subCardGrid.innerHTML = ''; // Limpa os sub-cards anteriores
+            backButton.style.display = 'block'; // Exibe o botão de voltar
+
+            const subCards = subCardData[macroId];
+            if (subCards) {
+                subCards.forEach(subCard => {
+                    const cardElement = document.createElement('div');
+                    cardElement.classList.add('card-item');
+                    cardElement.setAttribute('data-card-id', subCard.id);
+                    cardElement.innerHTML = `<h3>${subCard.title}</h3><p>${subCard.summary}</p>`;
+                    subCardGrid.appendChild(cardElement);
+                });
+                subCardGrid.classList.add('active'); // Exibe o container de sub-cards
+            }
+        }
+
+        // Função para mostrar os cards macro novamente
+        function showMainCards() {
+            mainCardGrid.style.display = 'grid'; // Exibe os cards macro
+            subCardGrid.classList.remove('active'); // Esconde o container de sub-cards
+            subCardGrid.innerHTML = ''; // Limpa os sub-cards
+            backButton.style.display = 'none'; // Esconde o botão de voltar
+        }
+
+        // Listener para cliques nos cards (tanto macro quanto sub-card)
+        mainCardGrid.addEventListener('click', (event) => {
+            const macroCard = event.target.closest('.macro-card');
+            if (macroCard) {
+                const macroId = macroCard.dataset.macroId;
+                showSubCards(macroId);
+            }
+        });
+
+        subCardGrid.addEventListener('click', (event) => {
+            const subCard = event.target.closest('.card-item');
+            if (subCard) {
+                const cardId = subCard.dataset.cardId;
+                if (fullContents[cardId]) {
+                    cardFullContent.innerHTML = fullContents[cardId];
+                    cardDetailOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Impede scroll do body
+                }
+            }
+        });
+
+        // Botão de voltar
+        backButton.addEventListener('click', showMainCards);
+
+        // Fecha o overlay ao clicar no botão 'x' ou fora do conteúdo
+        closeButton.addEventListener('click', () => {
+            cardDetailOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restaura o scroll do body
+        });
+
+        cardDetailOverlay.addEventListener('click', (event) => {
+            if (event.target === cardDetailOverlay) {
+                cardDetailOverlay.classList.remove('active');
+                document.body.style.overflow = ''; // Restaura o scroll do body
+            }
+        });
+
+        // Fecha o overlay com a tecla ESC
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && cardDetailOverlay.classList.contains('active')) {
+                cardDetailOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            // Adicionado: voltar aos macro cards com ESC se sub-cards estão abertos e overlay não
+            else if (event.key === 'Escape' && subCardGrid.classList.contains('active') && !cardDetailOverlay.classList.contains('active')) {
+                showMainCards();
+            }
+        });
+
+        // Exibir os cards principais ao carregar a página
+        document.addEventListener('DOMContentLoaded', showMainCards);
+    </script>
+</body>
+</html>
